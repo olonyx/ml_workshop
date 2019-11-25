@@ -103,7 +103,18 @@ def plot_multi(test_results):
 def plot_heatmap(heat_map, iter_x, iter_y):
     """ Draw a heat map to visualize the grid search results.
     """
-    pass
+    fig, ax = plt.subplots()
+    im = ax.imshow(heat_map)
+    ax.set_xticks(np.arange(len(iter_x)))
+    ax.set_yticks(np.arange(len(iter_y)))
+    ax.set_xticklabels(iter_x)
+    ax.set_yticklabels(iter_y)
+    for i in range(len(iter_y)):
+        for j in range(len(iter_x)):
+            text = ax.text(j, i, f"{heat_map[i, j]:.2f}", ha="center",
+                           va="center", color="w", fontsize=8)
+    fig.tight_layout()
+    plt.show()
 
 
 def test_all_once(all_data):
