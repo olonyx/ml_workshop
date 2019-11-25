@@ -86,37 +86,6 @@ def test_score(true_y, pred_y):
     precision, recall, f1, support = sk_score(true_y, pred_y, average="micro")
     return f1
 
-def plot_multi(test_results):
-    """ Plot gaussian bellcurve for the test results given.
-    """
-    tr_inv = [(np.mean(scores), clf) for clf, scores in test_results.items()]
-    tr_inv.sort(reverse=True)
-    
-    x = np.linspace(0.4, 0.8, 500)
-    for mu, clf in tr_inv:
-        sigma = np.std(test_results[clf])
-        plt.plot(x, stats.norm.pdf(x, mu, sigma), label=f"{clf}: {mu:.2f}")
-    plt.grid()
-    plt.legend()
-    plt.show()
-
-def plot_heatmap(heat_map, iter_x, iter_y):
-    """ Draw a heat map to visualize the grid search results.
-    """
-    fig, ax = plt.subplots()
-    im = ax.imshow(heat_map)
-    ax.set_xticks(np.arange(len(iter_x)))
-    ax.set_yticks(np.arange(len(iter_y)))
-    ax.set_xticklabels(iter_x)
-    ax.set_yticklabels(iter_y)
-    for i in range(len(iter_y)):
-        for j in range(len(iter_x)):
-            text = ax.text(j, i, f"{heat_map[i, j]:.2f}", ha="center",
-                           va="center", color="w", fontsize=8)
-    fig.tight_layout()
-    plt.show()
-
-
 def test_all_once(all_data):
     """ Test all the models in the global classifiers-dict.
     """
@@ -137,63 +106,7 @@ def test_all_once(all_data):
     for i, (score, clf) in enumerate(tr_inv):
         print(f"#{i+1}\t{clf}\t{score:.2f}")
 
-def test_all_multi(all_data, iterations=10):
-    """ Test all the models multiple times and plot the mean score and spread.
-    """
-    test_results = {clf: [] for clf in classifiers.keys()}
-    test_results["votes"] = []
-    for _ in range(iterations):
-        # This part is the same as in test_all_once
-        train_data, test_data = split_data(all_data)
-        train_data = whiten(train_data)
-        train(train_data)
-        test_data = whiten(train_data, test_data)
-        # Save all the results in a "big" results array
-        test_results_i = test(test_data)
-        for clf, score in test_results_i.items():
-            test_results[clf].append(score)
-    # Plot the results
-    plot_multi(test_results)
 
-def grid_search(all_data):
-    """ Do a grid search to fine tune the parameters for the Random
-        Forest Classifier.
-    """
-    search = {"est_from": 1,
-              "est_to": 21,
-              "est_step": 1,
-              "depth_from": 1,
-              "depth_to": 11,
-              "depth_step":1,
-              "tests_per_cell": 5}
-    iter_n_estimators = list(range(search["est_from"],
-                                   search["est_to"],
-                                   search["est_step"]))
-    iter_max_depth = list(range(search["depth_from"],
-                                search["depth_to"],
-                                search["depth_step"]))
-    heat_map = np.zeros((len(iter_n_estimators),
-                         len(iter_max_depth)))
-    counter = 0
-    for i, n_estimators in enumerate(iter_n_estimators):
-        for j, max_depth in enumerate(iter_max_depth):
-            if not counter % 10:
-                prog = 100*counter/heat_map.size
-                print(f"\rProgress: {prog:.2f}%", end="", flush=True)
-            clf = {"rbc": RandomForestClassifier(max_depth=max_depth,
-                                                 n_estimators=n_estimators)}
-            test_results = []
-            for _ in range(search["tests_per_cell"]):
-                train_data, test_data = split_data(all_data)
-                train_data = whiten(train_data)
-                train(train_data, clf)
-                test_data = whiten(train_data, test_data)
-                test_results.append(test(test_data, clf)["rbc"])
-            heat_map[i, j] = np.mean(test_results)
-            counter +=1
-    print()
-    plot_heatmap(heat_map, iter_max_depth, iter_n_estimators)
-    
 
 if __name__ == "__main__":
     warnings.simplefilter("ignore", UserWarning)
@@ -202,6 +115,4 @@ if __name__ == "__main__":
     data_path = join("data", "winequality-red.csv")
     all_data = load_data(data_path)
 
-    # test_all_once(all_data)
-    # test_all_multi(all_data)
-    grid_search(all_data)
+    test_all_once(all_data)
