@@ -35,49 +35,30 @@ def load_data(data_path):
 
 def split_data(all_data, train_ratio=0.8):
     # Randomly splits the data according to the train_ratio.
-    all_data = all_data.reindex(np.random.permutation(all_data.index))
-    split_idx = int(train_ratio*len(all_data.index))
-    trn = all_data.iloc[:split_idx]
-    tst = all_data.iloc[split_idx:]
+    pass
     # Convert to numpy arrays and put them in convinient dicts.
-    train_data = {"x": trn.loc[:, trn.columns != "quality"].to_numpy(),
-                  "y": trn.loc[:, trn.columns == "quality"].to_numpy().reshape(-1)}
-    test_data = {"x": tst.loc[:, tst.columns != "quality"].to_numpy(),
-                 "y": tst.loc[:, tst.columns == "quality"].to_numpy().reshape(-1)}
+    pass
     return train_data, test_data
 
 def whiten(train_data, out_data=None):
     """ Center the data around zero and scale to [-1, 1]
     """
     out_data = out_data or train_data
-    mean_val = np.mean(train_data["x"], axis=0)
-    max_val = np.max(np.abs(train_data["x"]-mean_val), axis=0)
-    out_data["x_w"] = out_data["x"] - mean_val
-    out_data["x_w"] /= max_val
+    pass
     return out_data
 
 def train(train_data, clfs=None):
     """ Train all the models in classifiers or clfs if it is given.
     """
     clfs = clfs or classifiers
-    for clf_name, clf in clfs.items():
-        start_time = time()
-        clf.fit(train_data["x_w"], train_data["y"])
-        duration = time()-start_time
+    pass
 
 def test(test_data, clfs=None):
     """ Test all the models in classifiers or clfs if it is given. Return a
         dict with clf name as keys and the results as values.
     """
     clfs = clfs or classifiers
-    votes = np.zeros((len(clfs.keys()), test_data["y"].size))
-    results = {}
-    for i, (clf_name, clf) in enumerate(clfs.items()):
-        pred_y = clf.predict(test_data["x_w"])
-        votes[i, :] = pred_y
-        score = test_score(test_data["y"], pred_y)
-        results[clf_name] = score
-    results["votes"] = test_score(test_data["y"], stats.mode(votes)[0][0])
+    pass
     return results
 
 def test_score(true_y, pred_y):
