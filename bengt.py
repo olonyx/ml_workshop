@@ -1,6 +1,7 @@
 """ Welcome to Bengt, your automatic wine connoisseur.
     All data was downloaded from:
     http://mlr.cs.umass.edu/ml/machine-learning-databases/wine-quality/
+    Author: olov.nykvist@b3.se
 """
 import warnings
 from os.path import join
@@ -159,11 +160,11 @@ def grid_search(all_data):
     """ Do a grid search to fine tune the parameters for the Random
         Forest Classifier.
     """
-    search = {"est_from": 1,
-              "est_to": 21,
+    search = {"est_from": 10,
+              "est_to": 31,
               "est_step": 1,
-              "depth_from": 1,
-              "depth_to": 11,
+              "depth_from": 7,
+              "depth_to": 21,
               "depth_step":1,
               "tests_per_cell": 5}
     iter_n_estimators = list(range(search["est_from"],
